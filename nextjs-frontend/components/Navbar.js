@@ -41,7 +41,7 @@ export default function Navbar() {
       {open && (
         <div className="absolute top-full left-0 right-0 bg-bg/97 border-b border-border
                         flex flex-col gap-4 px-6 py-5 md:hidden">
-          {["Download", "Sites", "Features"].map((item) => (
+          {["Sites", "Features"].map((item) => (
             <a key={item} href={`#${item.toLowerCase()}`}
                onClick={() => setOpen(false)}
                className="text-sm font-medium text-muted tracking-widest uppercase
