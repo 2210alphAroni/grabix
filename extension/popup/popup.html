@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:272px;background:#0e1318;color:#e8edf5;font-family:-apple-system,'DM Sans',sans-serif}
+.header{padding:16px 18px 12px;border-bottom:1px solid #1a2030;background:rgba(0,229,255,.03)}
+.logo{font-weight:900;font-size:20px;letter-spacing:4px;color:#00e5ff;margin-bottom:2px}
+.logo span{color:#ff3d6b}
+.sub{font-size:11px;color:#5a6578}
+.status{display:flex;align-items:center;gap:8px;padding:11px 18px;border-bottom:1px solid #1a2030}
+.dot{width:8px;height:8px;border-radius:50%;background:#5a6578;flex-shrink:0}
+.dot.on{background:#00ff9d;box-shadow:0 0 6px #00ff9d}
+.dot.off{background:#ff5f5f}
+.stxt{font-size:12px;color:#5a6578}
+.section{padding:13px 18px;border-bottom:1px solid #1a2030}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5a6578;margin-bottom:9px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid #1a2030;font-size:11px;color:#e8edf5}
+.step{display:flex;gap:9px;align-items:flex-start;margin-bottom:7px;font-size:12px;color:#e8edf5;line-height:1.5}
+.snum{width:17px;height:17px;border-radius:50%;background:rgba(0,229,255,.12);color:#00e5ff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:11px;color:#ffe03d}
+.footer{padding:11px 18px;display:flex;justify-content:space-between;align-items:center}
+.ver{font-size:10px;color:#1a2030}
+.check-btn{padding:5px 13px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);border-radius:7px;color:#00e5ff;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.check-btn:hover{background:rgba(0,229,255,.18)}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">GRAB<span>IX</span></div>
+  <div class="sub">Universal Media Downloader</div>
+</div>
+
+<div class="status">
+  <div class="dot" id="dot"></div>
+  <div class="stxt" id="stxt">Checking backend…</div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Supported Sites</div>
+  <div class="chips">
+    <span class="chip">▶ YouTube</span><span class="chip">f Facebook</span>
+    <span class="chip">📸 Instagram</span><span class="chip">🎵 TikTok</span>
+    <span class="chip">𝕏 Twitter</span><span class="chip">🎬 Vimeo</span>
+    <span class="chip">🎮 Twitch</span><span class="chip">+ more</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">How to Use</div>
+  <div class="step"><div class="snum">1</div><span>Backend চালু: <code>npm start</code></span></div>
+  <div class="step"><div class="snum">2</div><span>যেকোনো video page এ যান</span></div>
+  <div class="step"><div class="snum">3</div><span>নিচে ডানে <strong style="color:#00e5ff">↓ GRABIX</strong> button দেখবেন</span></div>
+  <div class="step"><div class="snum">4</div><span>Click → Format বেছে → Download!</span></div>
+</div>
+
+<div class="footer">
+  <span class="ver">v1.0.0</span>
+  <button class="check-btn" onclick="check()">Check Backend</button>
+</div>
+
+<script>
+async function check() {
+  const dot = document.getElementById("dot");
+  const stxt = document.getElementById("stxt");
+  stxt.textContent = "Checking…"; dot.className = "dot";
+  try {
+    const r = await fetch("http://localhost:5000/api/health",{signal:AbortSignal.timeout(3000)});
+    if (r.ok) { dot.className="dot on"; stxt.textContent="Backend connected ✓"; stxt.style.color="#00ff9d"; }
+    else throw new Error();
+  } catch {
+    dot.className="dot off"; stxt.textContent="Offline — run: npm start"; stxt.style.color="#ff5f5f";
+  }
+}
+check();
+</script>
+</body>
+</html>
