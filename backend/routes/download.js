@@ -4,12 +4,23 @@ const YTDlpWrap = require("yt-dlp-wrap").default;
 const path = require("path");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
+const { writeCookiesFile } = require("../utils/cookies");
 
 const ytDlp = new YTDlpWrap();
 const DOWNLOADS_DIR = path.join(__dirname, "../downloads");
 
 function buildArgs(url, formatId, outputTemplate) {
-  const base = [url, "-o", outputTemplate, "--no-playlist", "--no-check-certificates", "--js-runtimes", "nodejs", "--extractor-args", "youtube:skip=dash,hls"];
+  const cookiePath = writeCookiesFile();
+
+  const base = [
+    url, "-o", outputTemplate,
+    "--no-playlist",
+    "--no-check-certificates",
+    "--js-runtimes", "nodejs",
+    "--extractor-args", "youtube:skip=dash,hls",
+  ];
+
+  if (cookiePath) base.push("--cookies", cookiePath);
 
   if (formatId.startsWith("video-")) {
     const quality = formatId.replace("video-", "");
@@ -32,7 +43,6 @@ router.post("/", async (req, res) => {
   if (!url) return res.status(400).json({ error: "URL required" });
 
   const jobId = uuidv4().slice(0, 8);
-  // Let yt-dlp set the real title and extension
   const outTemplate = path.join(DOWNLOADS_DIR, `${jobId}_%(title)s.%(ext)s`);
 
   try {
@@ -45,12 +55,14 @@ router.post("/", async (req, res) => {
     const fileSize = fs.statSync(filePath).size;
     const ext      = path.extname(matched).slice(1) || "mp4";
 
-    // Build clean download filename from what yt-dlp saved
-    const rawTitle   = matched.replace(`${jobId}_`, "").replace(new RegExp(`\\.${ext}$`), "");
-    const safeTitle  = rawTitle.replace(/[/\\?%*:|"<>]/g, "-").trim().slice(0, 80) || "grabix-download";
+    const rawTitle  = matched.replace(`${jobId}_`, "").replace(new RegExp(`\\.${ext}$`), "");
+    const safeTitle = rawTitle.replace(/[/\\?%*:|"<>]/g, "-").trim().slice(0, 80) || "grabix-download";
     const dlFilename = `${safeTitle}.${ext}`;
 
-    const mimes = { mp4:"video/mp4", webm:"video/webm", mkv:"video/x-matroska", mp3:"audio/mpeg", m4a:"audio/mp4", flac:"audio/flac", opus:"audio/ogg" };
+    const mimes = {
+      mp4: "video/mp4", webm: "video/webm", mkv: "video/x-matroska",
+      mp3: "audio/mpeg", m4a: "audio/mp4", flac: "audio/flac", opus: "audio/ogg",
+    };
 
     res.setHeader("Content-Type", mimes[ext] || "application/octet-stream");
     res.setHeader("Content-Length", fileSize);
@@ -60,13 +72,17 @@ router.post("/", async (req, res) => {
 
     const stream = fs.createReadStream(filePath);
     stream.pipe(res);
-    stream.on("end", () => setTimeout(() => { try { fs.unlinkSync(filePath); } catch(_){} }, 5000));
+    stream.on("end", () => setTimeout(() => { try { fs.unlinkSync(filePath); } catch (_) {} }, 5000));
     stream.on("error", (e) => { if (!res.headersSent) res.status(500).json({ error: e.message }); });
 
   } catch (err) {
     console.error("[DOWNLOAD ERROR]\n", err.message);
-    try { fs.readdirSync(DOWNLOADS_DIR).filter(f=>f.startsWith(jobId)).forEach(f=>fs.unlinkSync(path.join(DOWNLOADS_DIR,f))); } catch(_){}
-    if (!res.headersSent) res.status(500).json({ error: err.message?.slice(0,300) || "Download failed" });
+    try {
+      fs.readdirSync(DOWNLOADS_DIR)
+        .filter((f) => f.startsWith(jobId))
+        .forEach((f) => fs.unlinkSync(path.join(DOWNLOADS_DIR, f)));
+    } catch (_) {}
+    if (!res.headersSent) res.status(500).json({ error: err.message?.slice(0, 300) || "Download failed" });
   }
 });
 
