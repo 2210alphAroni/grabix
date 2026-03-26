@@ -28,7 +28,14 @@ router.post("/", async (req, res) => {
 
   try {
     // Fetch metadata via yt-dlp
-    const metadata = await ytDlp.getVideoInfo(url.trim());
+    const metadata = await ytDlp.getVideoInfo(url.trim(), [
+      "--no-check-certificates",
+      "--no-playlist",
+      "--js-runtimes",
+      "nodejs",
+      "--extractor-args",
+      "youtube:skip=dash,hls",
+    ]);
 
     // Find which video qualities are actually available
     const availableHeights = new Set(

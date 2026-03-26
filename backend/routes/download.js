@@ -9,7 +9,7 @@ const ytDlp = new YTDlpWrap();
 const DOWNLOADS_DIR = path.join(__dirname, "../downloads");
 
 function buildArgs(url, formatId, outputTemplate) {
-  const base = [url, "-o", outputTemplate, "--no-playlist"];
+  const base = [url, "-o", outputTemplate, "--no-playlist", "--no-check-certificates", "--js-runtimes", "nodejs", "--extractor-args", "youtube:skip=dash,hls"];
 
   if (formatId.startsWith("video-")) {
     const quality = formatId.replace("video-", "");
