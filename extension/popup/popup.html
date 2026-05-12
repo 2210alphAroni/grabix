@@ -58,23 +58,9 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-siz
 
 <div class="footer">
   <span class="ver">v1.0.0</span>
-  <button class="check-btn" onclick="check()">Check Backend</button>
+  <button class="check-btn" id="check-btn">Check Backend</button>
 </div>
 
-<script>
-async function check() {
-  const dot = document.getElementById("dot");
-  const stxt = document.getElementById("stxt");
-  stxt.textContent = "Checking…"; dot.className = "dot";
-  try {
-    const r = await fetch("http://localhost:5000/api/health",{signal:AbortSignal.timeout(3000)});
-    if (r.ok) { dot.className="dot on"; stxt.textContent="Backend connected ✓"; stxt.style.color="#00ff9d"; }
-    else throw new Error();
-  } catch {
-    dot.className="dot off"; stxt.textContent="Offline — run: npm start"; stxt.style.color="#ff5f5f";
-  }
-}
-check();
-</script>
+<script src="popup.js"></script>
 </body>
 </html>
