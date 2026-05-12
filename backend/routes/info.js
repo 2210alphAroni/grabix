@@ -88,7 +88,7 @@ router.post("/", async (req, res) => {
     "--js-runtimes",
     "nodejs",
     "--extractor-args",
-    "youtube:player_client=android",
+    "youtube:player_client=android,web_safari",
   ];
 
   if (cookiePath) args.push("--cookies", cookiePath);
