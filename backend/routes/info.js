@@ -83,8 +83,10 @@ router.post("/", async (req, res) => {
   const cookiePath = writeCookiesFile();
 
   const args = [
-    "--dump-json",
+    "--dump-single-json",
     "--no-playlist",
+    "--no-check-certificates",
+    "--geo-bypass",
     "--js-runtimes",
     "nodejs",
     "--extractor-args",
@@ -94,7 +96,9 @@ router.post("/", async (req, res) => {
   if (cookiePath) args.push("--cookies", cookiePath);
 
   try {
-    const metadata = await ytDlp.getVideoInfo(url.trim(), args);
+    const metadataRaw = await ytDlp.execPromise([url.trim(), ...args]);
+
+    const metadata = JSON.parse(metadataRaw);
 
     const availableHeights = new Set(
       (metadata.formats || [])
