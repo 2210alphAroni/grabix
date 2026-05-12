@@ -17,7 +17,7 @@ function buildArgs(url, formatId, outputTemplate) {
     "--no-playlist",
     "--no-check-certificates",
     "--js-runtimes", "nodejs",
-    "--extractor-args", "youtube:skip=dash,hls",
+    "--extractor-args", "youtube:player_client=android",
   ];
 
   if (cookiePath) base.push("--cookies", cookiePath);

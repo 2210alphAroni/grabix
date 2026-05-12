@@ -6,18 +6,72 @@ const { writeCookiesFile } = require("../utils/cookies");
 const ytDlp = new YTDlpWrap();
 
 const VIDEO_FORMATS = [
-  { id: "video-2160", label: "MP4 4K · 2160p",     ext: "mp4", type: "video", quality: "2160" },
-  { id: "video-1080", label: "MP4 Full HD · 1080p", ext: "mp4", type: "video", quality: "1080" },
-  { id: "video-720",  label: "MP4 HD · 720p",       ext: "mp4", type: "video", quality: "720"  },
-  { id: "video-480",  label: "MP4 SD · 480p",       ext: "mp4", type: "video", quality: "480"  },
-  { id: "video-360",  label: "MP4 · 360p",          ext: "mp4", type: "video", quality: "360"  },
+  {
+    id: "video-2160",
+    label: "MP4 4K · 2160p",
+    ext: "mp4",
+    type: "video",
+    quality: "2160",
+  },
+  {
+    id: "video-1080",
+    label: "MP4 Full HD · 1080p",
+    ext: "mp4",
+    type: "video",
+    quality: "1080",
+  },
+  {
+    id: "video-720",
+    label: "MP4 HD · 720p",
+    ext: "mp4",
+    type: "video",
+    quality: "720",
+  },
+  {
+    id: "video-480",
+    label: "MP4 SD · 480p",
+    ext: "mp4",
+    type: "video",
+    quality: "480",
+  },
+  {
+    id: "video-360",
+    label: "MP4 · 360p",
+    ext: "mp4",
+    type: "video",
+    quality: "360",
+  },
 ];
 
 const AUDIO_FORMATS = [
-  { id: "audio-mp3-320", label: "MP3 · 320 kbps", ext: "mp3",  type: "audio", quality: "320"  },
-  { id: "audio-mp3-192", label: "MP3 · 192 kbps", ext: "mp3",  type: "audio", quality: "192"  },
-  { id: "audio-m4a",     label: "M4A · 256 kbps", ext: "m4a",  type: "audio", quality: "256"  },
-  { id: "audio-flac",    label: "FLAC · Lossless", ext: "flac", type: "audio", quality: "best" },
+  {
+    id: "audio-mp3-320",
+    label: "MP3 · 320 kbps",
+    ext: "mp3",
+    type: "audio",
+    quality: "320",
+  },
+  {
+    id: "audio-mp3-192",
+    label: "MP3 · 192 kbps",
+    ext: "mp3",
+    type: "audio",
+    quality: "192",
+  },
+  {
+    id: "audio-m4a",
+    label: "M4A · 256 kbps",
+    ext: "m4a",
+    type: "audio",
+    quality: "256",
+  },
+  {
+    id: "audio-flac",
+    label: "FLAC · Lossless",
+    ext: "flac",
+    type: "audio",
+    quality: "best",
+  },
 ];
 
 router.post("/", async (req, res) => {
@@ -29,10 +83,12 @@ router.post("/", async (req, res) => {
   const cookiePath = writeCookiesFile();
 
   const args = [
-    "--no-check-certificates",
+    "--dump-json",
     "--no-playlist",
-    "--js-runtimes", "nodejs",
-    "--extractor-args", "youtube:skip=dash,hls",
+    "--js-runtimes",
+    "nodejs",
+    "--extractor-args",
+    "youtube:player_client=android",
   ];
 
   if (cookiePath) args.push("--cookies", cookiePath);
@@ -55,12 +111,12 @@ router.post("/", async (req, res) => {
     }));
 
     return res.json({
-      title:       metadata.title     || "Unknown Title",
-      thumbnail:   metadata.thumbnail || "",
-      duration:    metadata.duration  || 0,
-      uploader:    metadata.uploader  || metadata.channel || "Unknown",
-      platform:    metadata.extractor_key || detectPlatform(url),
-      webpage_url: metadata.webpage_url   || url,
+      title: metadata.title || "Unknown Title",
+      thumbnail: metadata.thumbnail || "",
+      duration: metadata.duration || 0,
+      uploader: metadata.uploader || metadata.channel || "Unknown",
+      platform: metadata.extractor_key || detectPlatform(url),
+      webpage_url: metadata.webpage_url || url,
       formats: [...videoFormats, ...AUDIO_FORMATS],
     });
   } catch (err) {
@@ -73,11 +129,11 @@ router.post("/", async (req, res) => {
 
 function detectPlatform(url) {
   if (url.includes("youtube") || url.includes("youtu.be")) return "YouTube";
-  if (url.includes("facebook") || url.includes("fb.com"))  return "Facebook";
-  if (url.includes("instagram"))  return "Instagram";
-  if (url.includes("tiktok"))     return "TikTok";
+  if (url.includes("facebook") || url.includes("fb.com")) return "Facebook";
+  if (url.includes("instagram")) return "Instagram";
+  if (url.includes("tiktok")) return "TikTok";
   if (url.includes("twitter") || url.includes("x.com")) return "Twitter";
-  if (url.includes("vimeo"))      return "Vimeo";
+  if (url.includes("vimeo")) return "Vimeo";
   return "Unknown";
 }
 
